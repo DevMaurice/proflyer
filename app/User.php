@@ -36,4 +36,34 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    /**
+     * Checks if the relation is true
+     * 
+     * @param Flyer $relation 
+     * @return bolean         
+     */
+    public function owns($relation)
+    { 
+        return $relation->user_id == $this->id;
+    }
+
+    /**
+     * A user has many Flyers
+     * @return HasMany
+     */
+    public function flyers()
+    { 
+        return $this->hasMany('App\Flyer');
+    }
+
+    /**
+     * Save a flyer 
+     * @param  Flyer  $flyer 
+     * @return Flyer 
+     */
+    public function publish(Flyer $flyer)
+    { 
+        $this->flyers()->save($flyer);
+    }
 }

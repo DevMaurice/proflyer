@@ -3,14 +3,13 @@
 @section('content')
 
 <p>Sell your home</p>
-
 <hr>
-
-<div class="row"> 
-
-{!! Form::open(['method' => 'POST', 'route' => 'flyer.store', 'class' => 'form-horizontal col-md-6']) !!}
+{!! Form::open([
+	'method' => 'POST', 
+	'route' => 'flyer.store', 
+	'class' => 'form-horizontal'
+]) !!}
     @include('flyer.form')   
-
 {!! Form::close() !!}
-</div>
+
 @endsection

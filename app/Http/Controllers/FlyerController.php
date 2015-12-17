@@ -7,10 +7,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests;
 use App\Http\Requests\FlyerRequest;
 use App\Http\Utilities\Country;
+use App\Photo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FlyerController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['show']]);
+
+        parent::__construct();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,7 +28,6 @@ class FlyerController extends Controller
      */
     public function index()
     {
-        //
     }
 
     /**
@@ -28,11 +37,9 @@ class FlyerController extends Controller
      */
     public function create()
     {
-        flash('title', 'Here is create');
-
-        $options= array_combine(array_values(Country::all()),array_keys(Country::all()));
+        $options= array_combine(array_values(Country::all()), array_keys(Country::all()));
         
-        return view('flyer.create',compact('options'));
+        return view('flyer.create', compact('options'));
     }
 
     /**
@@ -43,11 +50,15 @@ class FlyerController extends Controller
      */
     public function store(FlyerRequest $request)
     {
-      Flyer::create($request->all());
+        $flyer = Flyer::create($request->all());
 
-      flash('Flyer saved');
+        Auth::user()->publish(
+            new Flyer($request->all())
+        );
 
-      return redirect()->back();
+        flash('info', 'Flyer successfully saved');
+
+        return redirect(flyer_path($flyer));
     }
 
     /**
@@ -56,9 +67,11 @@ class FlyerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($zip, $street)
     {
-        //
+        $flyer = Flyer::locatedAt($zip, $street);
+
+        return view('flyer.show', compact('flyer'));
     }
 
     /**
@@ -83,7 +96,6 @@ class FlyerController extends Controller
     {
         //
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -92,6 +104,6 @@ class FlyerController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Flyer::delete($id);
     }
 }
